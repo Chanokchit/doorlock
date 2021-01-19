@@ -1,0 +1,186 @@
+<html lang="th">
+  <head>
+    <script type="text/javascript">
+      var lock_state;
+
+      function initialState(id) {
+        var myHeaders = new Headers();
+        myHeaders.append(
+          "Authorization",
+          "Basic OWJlMGRmNWEtZGEwYy00NDI4LWI1YmQtOTkxYjM1ZjViMWJjOnZFQjFyYXRTQ1h5VkREamVEdDFzZUJ2YVBySzVCR2lW"
+        );
+        myHeaders.append("Content-Type", "application/json");
+
+        var requestOptions = {
+          method: "GET",
+          headers: myHeaders,
+          redirect: "follow",
+        };
+
+        fetch("https://api.netpie.io/v2/device/shadow/data", requestOptions)
+          .then((response) => response.text())
+          .then((result) => {
+            var data = JSON.parse(result);
+            console.log("data ===>", data);
+            console.log("lock_state ===>", data["data"]["lock_state"]);
+            // myImg = id;
+            if (data["data"]["lock_state"] === 0) {
+              image = "/lock-01.png";
+            } else {
+              image = "/unlock-01.png";
+            }
+            document.getElementById('myImg').src = image;
+          })
+          .catch((error) => console.log("error", error));
+      }
+
+      initialState()
+
+      function mqttDoorlock(id) {
+        var myHeaders = new Headers();
+        myHeaders.append(
+          "Authorization",
+          "Basic OWJlMGRmNWEtZGEwYy00NDI4LWI1YmQtOTkxYjM1ZjViMWJjOnZFQjFyYXRTQ1h5VkREamVEdDFzZUJ2YVBySzVCR2lW"
+        );
+        myHeaders.append("Content-Type", "application/json");
+
+        console.log("document.getElementById(id).src ===> ", document.getElementById(id).src)
+
+        if (document.getElementById(id).src == "http://localhost:9000/unlock-01.png") {
+          lock_state = 0;
+          document.getElementById(id).src = "/lock-01.png";
+          console.log("lock");
+          console.log(id);
+        } else {
+          lock_state = 1;
+          document.getElementById(id).src = "/unlock-01.png";
+          console.log("unlock");
+          console.log(id);
+        }
+        var raw = JSON.stringify({data: { lock_state: lock_state }});
+        requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+        fetch("https://api.netpie.io/v2/device/shadow/data", requestOptions)
+          .then((response) => response.text())
+          .then((result) => console.log(result))
+          .catch((error) => console.log("error", error));
+      }
+    </script>
+    <style>
+      .myDiv {
+        padding: 50px;
+        padding-left: 100px;
+        background-color: rgb(192, 228, 241);
+      }
+      /* .grid-container {
+			  display: grid;
+			  grid-template-columns: auto auto auto;
+			}
+			.grid-item {
+			  font-size: 30px;
+			  text-align: center;
+			} */
+      div {
+        text-align: left;
+        border-radius: 25px;
+        margin-top: 20px;
+        margin-right: 20px;
+        margin-left: 20px;
+      }
+      a {
+        padding: 65px;
+      }
+      b {
+        padding-left: 150px;
+        color: rgb(46, 43, 107);
+        font-size: 70px;
+      }
+    </style>
+  </head>
+  <body style="background-color: rgb(229, 242, 243)">
+    <!-- Hello I am a bot menu Smart Access.<br>
+		You can pass variables from server to html like this:<br> -->
+    <!-- testvar =  <%= data.one_id %> -->
+    <% data.key.forEach(function(key) { %>
+      <br />
+      <div class="myDiv">
+        <table style="width: 100%">
+          <tr>
+            <td>
+              <img
+                type="button"
+                onclick="mqttDoorlock(id)"
+                id="myImg"
+                src="/lock2-01.png"
+                width="200"
+                height="200"
+              />
+            </td>
+            <td><b><%= key.name %></b></td>
+          </tr>
+        </table>
+      </div>
+    <% }) %>
+   
+    <!-- <br />
+    <div class="myDiv">
+      <table style="width: 100%">
+        <tr>
+          <td>
+            <img
+              type="button"
+              id="myImg1"
+              src="/lock2-01.png"
+              width="200"
+              height="200"
+            />
+          </td>
+          <td><b><%= data.key[1].name %></b></td>
+        </tr>
+      </table>
+    </div>
+    <br />
+    <div class="myDiv">
+      <table style="width: 100%">
+        <tr>
+          <td>
+            <img
+              type="button"
+              id="myImg2"
+              src="/lock2-01.png"
+              width="200"
+              height="200"
+            />
+          </td>
+          <td><b><%= data.key[2].name %></b></td>
+        </tr>
+      </table>
+    </div> -->
+
+    <!-- <form name="frmMain" action="" method="post">
+            <script language="JavaScript">
+            function A(imgsrc)
+            {
+            document.frmMain.O.src=imgsrc;
+            }
+            </script>
+            <button><img src = 'lock-01.png' alt="HTML5 Icon" width="128" height="128"></button>
+            <button><img src = 'lock-02.png' alt="HTML5 Icon" width="128" height="128"></button>
+            <a href="javascript:A('/lock-01.png');">open</a>
+            <a href="javascript:A('/unlock-01.png');">close</a><br><br>
+			<b><img src="/lock-01.png" name="O" width="200" height="200" id="O"></b></form>
+			<hr> -->
+
+    <!-- <div id="cont1" style="visibility: visible;"><img src="/lock-01.png" type="button" onclick="hola(1)" value="hidefield2" width="300" height="300"></div> -->
+    <!-- <div id="cont2" style="visibility: hidden;"><img src="/unlock-01.png" type="button" onclick="hola(2)" value="hidefield2" width="300" height="300"></div> -->
+    <!-- <div class="grid-container">
+			<div class="grid-item" id="cont1" style="visibility: visible;"><img src="/lock-01.png" type="button" onclick="hola(1)" value="hidefield2" width="200" height="200"><br><br>close</div>
+			<div class="grid-item" id="cont2" style="visibility: hidden;"><img src="/unlock-01.png" type="button" onclick="hola(2)" value="hidefield2" width="200" height="200"><br><br>Open</div>
+			<div class="grid-item"><img src="/lock-01.png" name="O" width="200" height="200" id="O"><br><br>ห้อง</div> 	 
+		</div> -->
+  </body>
+</html>

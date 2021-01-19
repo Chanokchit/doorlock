@@ -1,0 +1,80 @@
+<html lang="th">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<script type="text/javascript">
+    let time_scan = 8000;
+    let error_count = 0;
+
+    function scanDevice() {
+        try {
+            webkit.messageHandlers.scanDevice.postMessage(time_scan);
+        } catch(error) {
+            alert('scanDevice ' + error)
+        }
+    }
+
+
+    function oneChatBluetoothCallBackData(type, data) {
+        let message = '';
+        try {
+            if (type == 'get_device_service') {
+                let obj = JSON.parse(data);
+
+                for (let i = 0; i < obj.data.length; i++) {
+                    let d = obj.data[i];
+                    let mfdata = 'N/A';
+                    let m = {}, mx;
+
+                    if (d.manufacturer_data) {
+                        try {
+                            mx = d.manufacturer_data.replace(/[{} ]/g,'');
+                            let arr= mx.split(',');
+                            for (let c of arr) {
+                                let b = c.split('=');
+                                m[b[0]] = b[1];
+                            }
+
+                            if (m) {
+                                mfdata = m.bytes;
+                            } 
+                        }
+                        catch(e) {
+                            m = 'error'
+                        }
+                    }
+
+                    //let xx = require('util').inspect(d, false, null true);
+                    // raw : ${d.manufacturer_data}<br>
+                    // m : ${m}<br>
+                    // mx : ${mx}<br>
+
+                    message += `
+                        name : ${d.bluetooth_name}<br>
+                        uuid : ${d.uuid}<br>
+                        manufacturer_data : ${mfdata}<br>
+                        state : ${d.state}<br>
+                        rssi : ${d.rssi}<br>
+                        -----------------------------------------------------<br>
+                    `;
+                }
+                document.getElementById("devicelist").innerHTML=message;
+            }
+        }
+        catch(error) {
+            if (error_count == 0) {
+                alert(error);
+            }
+            error_count++;
+        }        
+    }
+
+</script>
+<body>
+    <h1>
+        <a href="javascript:scanDevice();">[ scan device ]</a>
+    </h1>
+    <br/>
+    <div id="devicelist" width=300></textarea>
+</body>
+</html>
